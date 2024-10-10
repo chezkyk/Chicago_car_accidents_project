@@ -44,6 +44,13 @@ def get_accidents_by_main_reason(beat):
             return {'error': 'invalid beat parameter'}, 400
         return {'area': beat, 'causes': causes}, 200
 
-@accident_bp.route('/get_injury_statistics', methods=['GET'])
-def get_injury_statistics():
-    pass
+@accident_bp.route('/get_injury_statistics/<string:beat>', methods=['GET'])
+def get_injury_statistics(beat):
+
+    if not beat:
+        return {'error': 'beat parameter is required'}, 400
+
+    response = get_injury_statistics_service(beat)
+    if response is None:
+        return {'error': 'No data found for the specified area'}, 404
+    return response, 200
