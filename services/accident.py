@@ -57,4 +57,37 @@ def accidents_by_main_reason_service(beat):
 
     causes = {str(item['_id']): item['count'] for item in results}
     return causes
+def get_injury_statistics_service(beat):
 
+    pipeline = [
+        {'$match': {'area': beat}},
+        {'$group': {
+            '_id': None,
+            'total_injuries': {'$sum': '$injuries.total'},
+            'fatal_injuries': {'$sum': '$injuries.fatal'},
+            'non_fatal_injuries': {'$sum': '$injuries.non_fatal'},
+            'accidents': {
+                '$push': {
+                    'date': '$date',
+                    'injuries': '$injuries'
+                }
+            }
+        }}
+    ]
+
+    result = get_injury_statistics_from_db(pipeline)
+
+    if not result:
+        return None
+
+    stats = result[0]
+    response = {
+        'area': beat,
+        'statistics': {
+            'total_injuries': stats['total_injuries'],
+            'fatal_injuries': stats['fatal_injuries'],
+            'non_fatal_injuries': stats['non_fatal_injuries']
+        },
+        'accidents': stats['accidents']
+    }
+    return response
