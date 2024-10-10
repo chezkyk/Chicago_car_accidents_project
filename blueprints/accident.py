@@ -10,7 +10,7 @@ def start_db():
     init_accidents()
     return {'message': 'success'}, 200
 
-@accident_bp.route('/get_accidents_by_area/<int:beat>', methods=['GET'])
+@accident_bp.route('/get_accidents_by_area/<string:beat>', methods=['GET'])
 def get_accidents_by_area(beat):
     if beat is None:
         return {'error': 'beat (area) was NONE'}, 400
@@ -34,9 +34,15 @@ def get_accidents_by_area_and_date():
     return {'total_accidents': total}, 200
 
 
-@accident_bp.route('/get_accidents_by_main_reason', methods=['GET'])
-def get_accidents_by_main_reason():
-    pass
+@accident_bp.route('/get_accidents_by_main_reason/<string:beat>', methods=['GET'])
+def get_accidents_by_main_reason(beat):
+        if not beat:
+            return {'error': 'beat parameter is required'}, 400
+
+        causes = accidents_by_main_reason_service(beat)
+        if causes is None:
+            return {'error': 'invalid beat parameter'}, 400
+        return {'area': beat, 'causes': causes}, 200
 
 @accident_bp.route('/get_injury_statistics', methods=['GET'])
 def get_injury_statistics():
