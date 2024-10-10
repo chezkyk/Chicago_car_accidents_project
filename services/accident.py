@@ -1,6 +1,6 @@
 from database.connect import day_collection, week_collection, month_collection
 from utils.help_util_data import parse_date_bluprint
-from repository.accident import accidents_by_area_and_date_from_db
+from repository.accident import *
 
 def accidents_by_area_and_date_service(beat,time_type,start_date_str,end_date_str):
     start_date = parse_date_bluprint(start_date_str) if start_date_str else None
@@ -29,4 +29,32 @@ def accidents_by_area_and_date_service(beat,time_type,start_date_str,end_date_st
 
     total_accidents = accidents_by_area_and_date_from_db(query,collection)
     return {'total_accidents': total_accidents}, 200
+
+def accidents_by_main_reason_service(beat):
+    pipeline = [
+        {'$match': {'area': beat}},
+        {'$group': {
+            '_id': None,
+            'contributing_factors': {
+                '$push': {
+                    'k': {'$objectToArray': '$contributing_factors'},
+                }
+            }
+        }},
+        {'$unwind': '$contributing_factors'},
+        {'$unwind': '$contributing_factors.k'},
+        {'$group': {
+            '_id': '$contributing_factors.k.k',
+            'count': {'$sum': '$contributing_factors.k.v'}
+        }},
+        {'$sort': {'count': -1}}
+    ]
+    results = accidents_by_main_reason_from_db(pipeline)
+
+    if not results:
+        return None
+
+
+    causes = {str(item['_id']): item['count'] for item in results}
+    return causes
 
