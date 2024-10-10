@@ -12,7 +12,7 @@ def start_db():
 @accident_bp.route('/get_accidents_by_area/<string:beat>', methods=['GET'])
 def get_accidents_by_area(beat):
     if beat is None:
-        return {'error': 'beat (area) was NONE'}, 400
+        return {'error': 'beat (area) was NONE'}, 404
 
     total_accidents = fetch_total_accidents_from_db(beat)
 
@@ -27,7 +27,7 @@ def get_accidents_by_area_and_date():
     end_date_str = request.args.get('end_date')
 
     if not beat or not time_type:
-        return {'error': 'beat and time_period parameters are required'}, 400
+        return {'error': 'beat and time_period parameters are required'}, 404
 
     total = accidents_by_area_and_date_service(beat,time_type,start_date_str,end_date_str)
 
