@@ -1,9 +1,9 @@
 from pymongo import MongoClient
+from config import *
+client = MongoClient(MONGO_URI)
 
-client = MongoClient('mongodb://localhost:27017/')
+db = client[DB_NAME]
 
-db = client['chicago_accidents']
-
-month_collection = db['monthly']
-week_collection = db['weekly']
-day_collection= db['daily']
+month_collection = db[COLLECTION_NAMES[0]]
+week_collection = db[COLLECTION_NAMES[1]]
+day_collection= db[COLLECTION_NAMES[2]]
